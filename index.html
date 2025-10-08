@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Horizontal Carousel Vertical Rectangle Images</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: radial-gradient(circle at center, #111 0%, #000 100%);
+      font-family: Arial, sans-serif;
+    }
+    .carousel-container {
+      width: 90vw;
+      max-width: 800px; /* Prevents it from being too wide on large screens */
+      height: auto;
+      overflow-x: hidden;
+      overflow-y: visible;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      /* Hide scrollbars across browsers */
+      -ms-overflow-style: none;  /* Internet Explorer 10+ */
+      scrollbar-width: none;  /* Firefox */
+    }
+    .carousel-container::-webkit-scrollbar {
+      display: none;  /* Safari and Chrome */
+    }
+    .carousel__item {
+      flex: 0 0 auto;
+      width: 250px; /* Base width for vertical rectangle shape */
+      height: 350px; /* Base taller height to create vertical (portrait) rectangle */
+      max-width: 300px; /* Allows larger on big screens */
+      max-height: 420px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      border-radius: 0;
+      display: block;
+      object-fit: cover; /* Ensures image fills the vertical rectangle without distortion (crops if needed) */
+    }
+    .carousel__item:hover {
+      transform: scale(1.1); /* Scale effect on hover without rotation */
+      z-index: 10;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media (max-width: 768px) {
+      .carousel-container {
+        width: 95vw;
+        gap: 15px; /* Smaller gap on mobile */
+      }
+      .carousel__item {
+        width: 200px; /* Smaller on mobile to fit more comfortably */
+        height: 280px;
+        max-width: 200px;
+        max-height: 280px;
+      }
+      .carousel__item:hover {
+        transform: scale(1.05); /* Slightly less scale on small screens to avoid overflow */
+      }
+    }
+
+    @media (min-width: 769px) {
+      .carousel-container {
+        gap: 25px; /* Larger gap on desktop/laptop for better spacing */
+      }
+      .carousel__item {
+        width: clamp(250px, 35vw, 300px); /* Scales between 250px and 300px based on viewport */
+        height: clamp(350px, 45vw, 420px); /* Proportional height scaling */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="carousel-container" id="carousel">
+    <img class="carousel__item" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Mountain Landscape" />
+    <img class="carousel__item" src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80" alt="City Lights" />
+    <img class="carousel__item" src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=800&q=80" alt="Nature Portrait" />
+    <img class="carousel__item" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80" alt="Beach Sunset" />
+    <img class="carousel__item" src="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=800&q=80" alt="Mountain Lake" />
+    <img class="carousel__item" src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80" alt="Forest Path" />
+    <img class="carousel__item" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Ocean Waves" />
+  </div>
+
+  <script>
+    const carousel = document.getElementById('carousel');
+
+    const maxScroll = () => carousel.scrollWidth - carousel.clientWidth;
+
+    const handleMove = (e) => {
+      // Prevent default touch behavior to avoid interfering with page scroll (horizontal only)
+      if (e.touches) {
+        e.preventDefault();
+      }
+      
+      const rect = carousel.getBoundingClientRect();
+      let x;
+      if (e.touches && e.touches.length > 0) {
+        x = e.touches[0].clientX - rect.left;
+      } else {
+        x = e.clientX - rect.left;
+      }
+      const percent = Math.max(0, Math.min(1, x / rect.width)); // Clamp between 0 and 1
+      carousel.scrollLeft = percent * maxScroll();
+    };
+
+    // Desktop: mousemove
+    carousel.addEventListener('mousemove', handleMove);
+
+    // Mobile: touchmove (with passive: false to allow preventDefault)
+    carousel.addEventListener('touchmove', handleMove, { passive: false });
+
+    // Optional: Add touchstart to enable hover-like scale on touch (for better mobile UX)
+    carousel.addEventListener('touchstart', (e) => {
+      const item = e.target.closest('.carousel__item');
+      if (item) {
+        item.style.transform = 'scale(1.05)'; // Match mobile hover scale
+        item.style.zIndex = '10';
+      }
+    }, { passive: true });
+
+    // Optional: Reset scale on touchend (to mimic hover out)
+    carousel.addEventListener('touchend', (e) => {
+      const item = e.target.closest('.carousel__item');
+      if (item) {
+        setTimeout(() => {
+          item.style.transform = '';
+          item.style.zIndex = '';
+        }, 300); // Match transition duration
+      }
+    }, { passive: true });
+  </script>
+</body>
+</html>
